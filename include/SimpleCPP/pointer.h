@@ -18,7 +18,7 @@ class Pointer {
   Pointer() = default;
 
   Pointer(const size_t& len)
-      : _refs(static_cast<std::atomic<size_t>*>(alloc(sizeof(std::atomic<size_t>)))),
+      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     _refs->store(1);
   }
@@ -77,7 +77,7 @@ class Pointer {
  private:
   void dec_ref() {
     if (--(*_refs) == 0) {
-      dealloc(_refs);
+      free(_refs);
       dealloc(_data);
     }
   }
