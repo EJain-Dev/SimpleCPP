@@ -77,13 +77,15 @@ class Pointer {
 
  private:
   void dec_ref() {
-    if (--(*_refs) == 0) {
-      free(_refs);
-      dealloc(_data);
+    if (_refs != nullptr) {
+      if (--(*_refs) == 0) {
+        free(_refs);
+        dealloc(_data);
+      }
     }
   }
 
-  std::atomic<size_t>* _refs;
+  std::atomic<size_t>* _refs = nullptr;
   T* _data;
 };
 }  // namespace simplecpp
