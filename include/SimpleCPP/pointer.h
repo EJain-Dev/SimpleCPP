@@ -20,13 +20,13 @@ class Pointer {
   Pointer(const size_t& len)
       : _refs(static_cast<std::atomic<size_t>*>(alloc(sizeof(std::atomic<size_t>)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    _refs->store(1ZU);
+    _refs->store(1);
   }
 
   Pointer(const T* _data, const size_t& len)
       : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    _refs->store(1ZU);
+    _refs->store(1);
     if (_data == nullptr) {
       throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
     }
