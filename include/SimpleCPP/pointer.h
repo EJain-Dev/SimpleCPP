@@ -1,0 +1,83 @@
+#ifndef SIMPLECPP_POINTER_H_
+#define SIMPLECPP_POINTER_H_
+
+#include <atomic>
+#include <stdexcept>
+
+namespace simplecpp {
+template <typename T>
+class Pointer {
+ public:
+  Pointer() = default;
+
+  Pointer(const size_t& len)
+      : _refs(static_cast<size_t*>(malloc(sizeof(std::atomic<size_t>)))),
+        _data(static_cast<T*>(std::malloc(len * sizeof(T)))) {
+    _refs->store(1ZU);
+  }
+
+  Pointer(const T* _data, const size_t& len)
+      : _refs(static_cast<size_t*>(malloc(sizeof(std::atomic<size_t>)))),
+        _data(static_cast<T*>(malloc(len * sizeof(T)))) {
+    _refs->store(1ZU);
+    if (_data == nullptr) {
+      throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
+    }
+  }
+
+  Pointer(const Pointer& other) : _refs(other._refs), _data(other._data) { ++(*_refs); }
+
+  Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
+    other._refs = nullptr;
+    other._data = nullptr;
+  }
+
+  ~Pointer() { dec_ref(); }
+
+  Pointer& operator=(const Pointer& other) {
+    if (*this == other) {
+      return *this;
+    }
+
+    dec_ref();
+    _refs = other._refs;
+    ++(*_refs);
+    _data = other._data;
+
+    return *this;
+  }
+
+  Pointer& operator=(Pointer&& other) noexcept {
+    if (*this == other) {
+      return *this;
+    }
+
+    dec_ref();
+    _refs = other._refs;
+    _data = other._data;
+    other._refs = nullptr;
+    other._data = nullptr;
+
+    return *this;
+  }
+
+  operator T*() const noexcept { return _data; }
+
+  T* get() const noexcept { return _data; }
+
+  const size_t& get_ref_count() const noexcept { return *_refs; }
+
+ private:
+  void dec_ref() {
+    if (--(*_refs) == 0) {
+      free(_refs);
+      free(_data);
+    }
+  }
+
+  std::atomic<size_t>* _refs;
+  T* _data;
+};
+}  // namespace simplecpp
+
+#endif  // SIMPLECPP_POINTER_H_
