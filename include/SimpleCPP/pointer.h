@@ -86,7 +86,7 @@ class Pointer {
   }
 
   std::atomic<size_t>* _refs = nullptr;
-  T* _data;
+  T* _data = nullptr;
 };
 }  // namespace simplecpp
 
