@@ -17,7 +17,7 @@ void default_deallocator(T* ptr) {
   free(static_cast<void*>(ptr));
 }
 
-template <typename T, T* (*alloc)(size_t), void (*dealloc)(T*)>
+template <typename T, T* (*alloc)(const size_t&), void (*dealloc)(T*)>
 class Pointer {
  public:
   Pointer() = default;
@@ -90,9 +90,6 @@ class Pointer {
   std::atomic<size_t>* _refs;
   T* _data;
 };
-
-template <typename T>
-Pointer<T, default_allocator<T>, default_deallocator<T>>;
 }  // namespace simplecpp
 
 #endif  // SIMPLECPP_POINTER_H_
