@@ -8,8 +8,8 @@
 
 namespace simplecpp {
 template <typename T>
-T* default_allocator(const size_t& len) {
-  return static_cast<T*>(malloc(len * sizeof(T)));
+T* default_allocator(const size_t& size) {
+  return static_cast<T*>(malloc(len));
 }
 
 template <typename T>
