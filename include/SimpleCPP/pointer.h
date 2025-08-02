@@ -7,17 +7,12 @@
 #include <stdexcept>
 
 namespace simplecpp {
-template <typename T>
-T* default_allocator(const size_t& size) {
-  return static_cast<T*>(malloc(len));
-}
+void* default_allocator(const size_t& size) { return malloc(size); }
 
-template <typename T>
-void default_deallocator(T* ptr) {
-  free(static_cast<void*>(ptr));
-}
+void default_deallocator(void* ptr) { free(static_cast<void*>(ptr)); }
 
-template <typename T, T* (*alloc)(const size_t&), void (*dealloc)(T*)>
+template <typename T, void* (*alloc)(const size_t&) = default_allocator,
+          void (*dealloc)(void*) = default_deallocator>
 class Pointer {
  public:
   Pointer() = default;
