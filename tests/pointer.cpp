@@ -63,8 +63,7 @@ TEST_F(PointerTest, ReferenceCounting) {
   using type = float;
   constexpr auto NUM_ELEMENTS = 32;
 
-  simplecpp::Pointer<type, alloc, dealloc> ptr =
-      simplecpp::Pointer<type, alloc, dealloc>{NUM_ELEMENTS};
+  simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
   EXPECT_EQ(ptr.get_ref_count(), 1);
 
   {
