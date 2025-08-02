@@ -29,17 +29,21 @@ class PointerTest : public testing::Test {
 };
 
 TEST_F(PointerTest, LenConstructor) {
+  using type = simplecpp::Pointer<float>;
   constexpr auto NUM_ELEMENTS = 32;
+
   {
-    simplecpp::Pointer<simplecpp::Pointer<float>, alloc, dealloc> ptr{NUM_ELEMENTS};
+    simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
   }
+
   EXPECT_EQ(allocated_count, 0);
-  EXPECT_EQ(allocated_size, sizeof(simplecpp::Pointer<float>) * NUM_ELEMENTS);
+  EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 }
 
 TEST_F(PointerTest, ExistingDataConstructor) {
   using type = float;
   constexpr auto NUM_ELEMENTS = 32;
+
   {
     std::mt19937 gen{NUM_ELEMENTS};
     std::normal_distribution<type> dist{};
@@ -50,6 +54,7 @@ TEST_F(PointerTest, ExistingDataConstructor) {
       EXPECT_EQ(ptr[i], data[i]);
     }
   }
+
   EXPECT_EQ(allocated_count, 0);
   EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 }
