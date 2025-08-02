@@ -2,23 +2,35 @@
 #define SIMPLECPP_POINTER_H_
 
 #include <atomic>
+#include <concepts>
+#include <cstdlib>
 #include <stdexcept>
 
 namespace simplecpp {
 template <typename T>
+T* default_allocator(const size_t& len) {
+  return static_cast<T*>(malloc(len * sizeof(T)));
+}
+
+template <typename T>
+void default_deallocator(T* ptr) {
+  free(static_cast<void*>(ptr));
+}
+
+template <typename T, T* (*alloc)(size_t), void (*dealloc)(T*)>
 class Pointer {
  public:
   Pointer() = default;
 
   Pointer(const size_t& len)
-      : _refs(static_cast<size_t*>(malloc(sizeof(std::atomic<size_t>)))),
-        _data(static_cast<T*>(std::malloc(len * sizeof(T)))) {
+      : _refs(static_cast<std::atomic<size_t>*>(alloc(sizeof(std::atomic<size_t>)))),
+        _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     _refs->store(1ZU);
   }
 
   Pointer(const T* _data, const size_t& len)
-      : _refs(static_cast<size_t*>(malloc(sizeof(std::atomic<size_t>)))),
-        _data(static_cast<T*>(malloc(len * sizeof(T)))) {
+      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
+        _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     _refs->store(1ZU);
     if (_data == nullptr) {
       throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
@@ -35,7 +47,7 @@ class Pointer {
   ~Pointer() { dec_ref(); }
 
   Pointer& operator=(const Pointer& other) {
-    if (*this == other) {
+    if (this == &other) {
       return *this;
     }
 
@@ -48,7 +60,7 @@ class Pointer {
   }
 
   Pointer& operator=(Pointer&& other) noexcept {
-    if (*this == other) {
+    if (this == &other) {
       return *this;
     }
 
@@ -70,14 +82,17 @@ class Pointer {
  private:
   void dec_ref() {
     if (--(*_refs) == 0) {
-      free(_refs);
-      free(_data);
+      dealloc(_refs);
+      dealloc(_data);
     }
   }
 
   std::atomic<size_t>* _refs;
   T* _data;
 };
+
+template <typename T>
+Pointer<T, default_allocator<T>, default_deallocator<T>>;
 }  // namespace simplecpp
 
 #endif  // SIMPLECPP_POINTER_H_
