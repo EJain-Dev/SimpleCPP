@@ -181,3 +181,12 @@ TEST_F(PointerTest, MoveOperator) {
     EXPECT_EQ(ptr2[i], data[i]);
   }
 }
+
+TEST_F(PointerTest, EqualityOperator) {
+  Pointer<type> ptr1{NUM_ELEMENTS};
+  auto ptr2{ptr1};
+  Pointer<type> ptr3{NUM_ELEMENTS};
+  EXPECT_EQ(ptr1 == ptr2, true);
+  EXPECT_EQ(ptr3 != ptr2, true);
+  EXPECT_EQ(ptr3 != ptr2, true);
+}
