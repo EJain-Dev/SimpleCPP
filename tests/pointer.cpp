@@ -188,5 +188,8 @@ TEST_F(PointerTest, EqualityOperator) {
   Pointer<type> ptr3{NUM_ELEMENTS};
   EXPECT_EQ(ptr1 == ptr2, true);
   EXPECT_EQ(ptr3 != ptr2, true);
-  EXPECT_EQ(ptr3 != ptr2, true);
+  EXPECT_EQ(ptr3 != ptr1, true);
+  EXPECT_EQ(ptr1 == ptr2.get(), true);
+  EXPECT_EQ(ptr3.get() != ptr2, true);
+  EXPECT_EQ(ptr1.get() != ptr3, true);
 }

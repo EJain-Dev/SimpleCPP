@@ -86,6 +86,7 @@ class Pointer {
   const T& operator*() const noexcept { return *_data; }
 
   friend bool operator==(const Pointer& a, const Pointer& b) noexcept { return a._data == b._data; }
+  friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
  private:
   void dec_ref() noexcept {
