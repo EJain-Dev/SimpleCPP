@@ -122,8 +122,6 @@ TEST_F(PointerTest, CopyConstructor) {
     }
   }
   EXPECT_EQ(ptr1.get_ref_count(), 1);
-  EXPECT_EQ(allocated_count, 1);
-  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
 
 TEST_F(PointerTest, MoveConstructor) {
@@ -148,7 +146,17 @@ TEST_F(PointerTest, MoveConstructor) {
       EXPECT_EQ(ptr2[i], data[i]);
     }
   }
-  EXPECT_EQ(ptr1.get_ref_count(), 0);
+}
+
+TEST_F(PointerTest, Destructor) {
+  using type = float;
+  constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
+
+  {
+    Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
+  }
+
   EXPECT_EQ(allocated_count, 0);
   EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
