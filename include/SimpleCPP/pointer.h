@@ -75,6 +75,11 @@ class Pointer {
 
   const size_t get_ref_count() const noexcept { return _refs->load(); }
 
+  const T& operator[](const size_t& idx) { return _data[idx]; }
+  const T& operator*() { return *_data; }
+
+  friend bool operator==(const Pointer& a, const Pointer& b) { return a._data == b._data; }
+
  private:
   void dec_ref() {
     if (_refs->load() != 0) {
