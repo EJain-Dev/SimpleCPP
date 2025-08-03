@@ -8,26 +8,31 @@
 #include <utility>
 #include <vector>
 
-size_t allocated_count;
+size_t alloc_count;
+size_t dealloc_count;
 size_t allocated_size;
 
 using simplecpp::Pointer;
+using type = float;
+constexpr auto NUM_ELEMENTS = 32;
+constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
 void* alloc(const size_t& size) {
-  allocated_count++;
+  alloc_count++;
   allocated_size += size;
   return malloc(size);
 }
 
 void dealloc(void* ptr) noexcept {
-  allocated_count--;
+  dealloc_count--;
   free(ptr);
 }
 
 class PointerTest : public testing::Test {
  protected:
   void SetUp() override {
-    allocated_count = 0;
+    alloc_count = 0;
+    dealloc_count = 0;
     allocated_size = 0;
   }
 };
@@ -37,7 +42,8 @@ TEST_F(PointerTest, DefaultConstructor) {
 
   Pointer<type, alloc, dealloc> ptr{};
   EXPECT_EQ(ptr.get_ref_count(), 0);
-  EXPECT_EQ(allocated_count, 0);
+  EXPECT_EQ(alloc_count, 0);
+  EXPECT_EQ(dealloc_count, 0);
 }
 
 TEST_F(PointerTest, LenConstructor) {
@@ -45,15 +51,12 @@ TEST_F(PointerTest, LenConstructor) {
   constexpr auto NUM_ELEMENTS = 32;
   constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
-  {
-    Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
+  Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
 
-    EXPECT_EQ(ptr.get_ref_count(), 1);
-    EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
-  }
-
-  EXPECT_EQ(allocated_count, 0);
+  EXPECT_EQ(ptr.get_ref_count(), 1);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 0);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
 
 TEST_F(PointerTest, ExistingDataConstructor) {
@@ -61,24 +64,21 @@ TEST_F(PointerTest, ExistingDataConstructor) {
   constexpr auto NUM_ELEMENTS = 32;
   constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
-  {
-    std::mt19937 gen{NUM_ELEMENTS};
-    std::normal_distribution<type> dist{};
-    std::vector<type> data(NUM_ELEMENTS);
-    std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+  std::mt19937 gen{NUM_ELEMENTS};
+  std::normal_distribution<type> dist{};
+  std::vector<type> data(NUM_ELEMENTS);
+  std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
 
-    Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
+  Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
 
-    EXPECT_EQ(ptr.get_ref_count(), 1);
-    EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  EXPECT_EQ(ptr.get_ref_count(), 1);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 0);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 
-    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
-      EXPECT_EQ(ptr[i], data[i]);
-    }
+  for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+    EXPECT_EQ(ptr[i], data[i]);
   }
-
-  EXPECT_EQ(allocated_count, 0);
 }
 
 TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
@@ -86,17 +86,12 @@ TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
   constexpr auto NUM_ELEMENTS = 32;
   constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
-  {
-    Pointer<type, alloc, dealloc> ptr;
-    EXPECT_THROW((ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS}),
-                 std::invalid_argument);
-    EXPECT_EQ(ptr.get_ref_count(), 1);
-    EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
-  }
-
-  EXPECT_EQ(allocated_size, 0);
-  EXPECT_EQ(allocated_count, 0);
+  Pointer<type, alloc, dealloc> ptr;
+  EXPECT_THROW((ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS}), std::invalid_argument);
+  EXPECT_EQ(ptr.get_ref_count(), 1);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 1);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
 
 TEST_F(PointerTest, CopyConstructor) {
@@ -110,18 +105,16 @@ TEST_F(PointerTest, CopyConstructor) {
   std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
 
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
-  {
-    auto ptr2{ptr1};
-    EXPECT_EQ(ptr2.get_ref_count(), 2);
-    EXPECT_EQ(ptr1.get_ref_count(), 2);
-    EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  auto ptr2{ptr1};
+  EXPECT_EQ(ptr2.get_ref_count(), 2);
+  EXPECT_EQ(ptr1.get_ref_count(), 2);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 0);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 
-    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
-      EXPECT_EQ(ptr1[i], ptr2[i]);
-    }
+  for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+    EXPECT_EQ(ptr1[i], ptr2[i]);
   }
-  EXPECT_EQ(ptr1.get_ref_count(), 1);
 }
 
 TEST_F(PointerTest, MoveConstructor) {
@@ -135,16 +128,15 @@ TEST_F(PointerTest, MoveConstructor) {
   std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
 
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
-  {
-    auto ptr2{std::move(ptr1)};
-    EXPECT_EQ(ptr2.get_ref_count(), 1);
-    EXPECT_EQ(ptr1.get_ref_count(), 0);
-    EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  auto ptr2{std::move(ptr1)};
+  EXPECT_EQ(ptr2.get_ref_count(), 1);
+  EXPECT_EQ(ptr1.get_ref_count(), 0);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 0);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 
-    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
-      EXPECT_EQ(ptr2[i], data[i]);
-    }
+  for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+    EXPECT_EQ(ptr2[i], data[i]);
   }
 }
 
@@ -155,8 +147,14 @@ TEST_F(PointerTest, Destructor) {
 
   {
     Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
+    {
+      auto ptr2{ptr};
+    }
+    EXPECT_EQ(ptr.get_ref_count(), 1);
+    EXPECT_EQ(dealloc_count, 0);
   }
 
-  EXPECT_EQ(allocated_count, 0);
+  EXPECT_EQ(alloc_count, 1);
+  EXPECT_EQ(dealloc_count, 1);
   EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
