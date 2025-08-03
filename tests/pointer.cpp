@@ -15,7 +15,7 @@ void* alloc(const size_t& size) {
   return malloc(size);
 }
 
-void dealloc(void* ptr) {
+void dealloc(void* ptr) noexcept {
   allocated_count--;
   free(ptr);
 }
