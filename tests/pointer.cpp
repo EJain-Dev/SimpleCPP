@@ -34,9 +34,8 @@ TEST_F(PointerTest, LenConstructor) {
 
   {
     simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
-    const auto& ref_count = ptr.get_ref_count();
 
-    EXPECT_EQ(ref_count, 1);
+    EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
     EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
   }
@@ -56,8 +55,7 @@ TEST_F(PointerTest, ExistingDataConstructor) {
 
     simplecpp::Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
 
-    const auto& ref_count = ptr.get_ref_count();
-    EXPECT_EQ(ref_count, 1);
+    EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
     EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 

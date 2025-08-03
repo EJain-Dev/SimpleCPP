@@ -77,7 +77,7 @@ class Pointer {
 
   T* get() const noexcept { return _data; }
 
-  const size_t& get_ref_count() const noexcept { return _refs->load(); }
+  const size_t get_ref_count() const noexcept { return _refs->load(); }
 
  private:
   void dec_ref() {
