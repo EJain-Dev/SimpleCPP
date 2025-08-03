@@ -34,12 +34,14 @@ TEST_F(PointerTest, LenConstructor) {
 
   {
     simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
-    auto ref_count = ptr.get_ref_count();
+    const auto& ref_count = ptr.get_ref_count();
+
     EXPECT_EQ(ref_count, 1);
+    EXPECT_EQ(allocated_count, 0);
+    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
   }
 
   EXPECT_EQ(allocated_count, 0);
-  EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 }
 
 TEST_F(PointerTest, ExistingDataConstructor) {
@@ -51,12 +53,18 @@ TEST_F(PointerTest, ExistingDataConstructor) {
     std::normal_distribution<type> dist{};
     std::vector<type> data(NUM_ELEMENTS);
     std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+
     simplecpp::Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
+
+    const auto& ref_count = ptr.get_ref_count();
+    EXPECT_EQ(ref_count, 1);
+    EXPECT_EQ(allocated_count, 1);
+    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
+
     for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
       EXPECT_EQ(ptr[i], data[i]);
     }
   }
 
   EXPECT_EQ(allocated_count, 0);
-  EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 }
