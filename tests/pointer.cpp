@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <random>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -77,6 +78,24 @@ TEST_F(PointerTest, ExistingDataConstructor) {
     }
   }
 
+  EXPECT_EQ(allocated_count, 0);
+}
+
+TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
+  using type = float;
+  constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
+
+  {
+    Pointer<type, alloc, dealloc> ptr;
+    EXPECT_THROW((ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS}),
+                 std::invalid_argument);
+    EXPECT_EQ(ptr.get_ref_count(), 1);
+    EXPECT_EQ(allocated_count, 1);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  }
+
+  EXPECT_EQ(allocated_size, 0);
   EXPECT_EQ(allocated_count, 0);
 }
 
