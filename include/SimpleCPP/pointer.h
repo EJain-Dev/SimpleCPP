@@ -78,6 +78,7 @@ class Pointer {
     return *this;
   }
 
+  T* get() noexcept { return _data; }
   const T* get() const noexcept { return _data; }
   const size_t get_ref_count() const noexcept { return _refs->load(); }
 
