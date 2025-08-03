@@ -9,6 +9,8 @@
 size_t allocated_count;
 size_t allocated_size;
 
+using simplecpp::Pointer;
+
 void* alloc(const size_t& size) {
   allocated_count++;
   allocated_size += size;
@@ -31,18 +33,18 @@ class PointerTest : public testing::Test {
 TEST_F(PointerTest, DefaultConstructor) {
   using type = float;
 
-  simplecpp::Pointer<type, alloc, dealloc> ptr{};
+  Pointer<type, alloc, dealloc> ptr{};
   EXPECT_EQ(ptr.get_ref_count(), 0);
   EXPECT_EQ(allocated_count, 0);
 }
 
 TEST_F(PointerTest, LenConstructor) {
-  using type = simplecpp::Pointer<float>;
+  using type = Pointer<float>;
   constexpr auto NUM_ELEMENTS = 32;
   constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
   {
-    simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
+    Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
 
     EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
@@ -63,7 +65,7 @@ TEST_F(PointerTest, ExistingDataConstructor) {
     std::vector<type> data(NUM_ELEMENTS);
     std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
 
-    simplecpp::Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
+    Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
 
     EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
