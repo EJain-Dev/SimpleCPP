@@ -73,10 +73,6 @@ class Pointer {
     return *this;
   }
 
-  operator T*() const noexcept { return _data; }
-
-  T* get() const noexcept { return _data; }
-
   const size_t get_ref_count() const noexcept { return _refs->load(); }
 
  private:
