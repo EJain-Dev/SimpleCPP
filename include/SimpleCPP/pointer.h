@@ -73,6 +73,7 @@ class Pointer {
     return *this;
   }
 
+  const T* get() const noexcept { return _data; }
   const size_t get_ref_count() const noexcept { return _refs->load(); }
 
   const T& operator[](const size_t& idx) { return _data[idx]; }
