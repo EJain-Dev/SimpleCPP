@@ -3,7 +3,7 @@
 #include <SimpleCPP/Pointer.h>
 
 #include <algorithm>
-#include <random>#include <ranges>
+#include <random>
 #include <vector>
 
 size_t allocated_count;
@@ -34,6 +34,8 @@ TEST_F(PointerTest, LenConstructor) {
 
   {
     simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
+    auto ref_count = ptr.get_ref_count();
+    EXPECT_EQ(ref_count, 1);
   }
 
   EXPECT_EQ(allocated_count, 0);
