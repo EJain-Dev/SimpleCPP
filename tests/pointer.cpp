@@ -192,4 +192,6 @@ TEST_F(PointerTest, EqualityOperator) {
   EXPECT_EQ(ptr1 == ptr2.get(), true);
   EXPECT_EQ(ptr3.get() != ptr2, true);
   EXPECT_EQ(ptr1.get() != ptr3, true);
+  ptr2 = Pointer<type>{std::move(ptr1)};
+  EXPECT_EQ(ptr1 != ptr2, true);
 }
