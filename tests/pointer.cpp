@@ -137,3 +137,47 @@ TEST_F(PointerTest, Destructor) {
   EXPECT_EQ(dealloc_count, 1);
   EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
+
+TEST_F(PointerTest, CopyOperator) {
+  std::mt19937 gen{NUM_ELEMENTS};
+  std::normal_distribution<type> dist{};
+  std::vector<type> data(NUM_ELEMENTS);
+  std::vector<type> data2(NUM_ELEMENTS);
+  std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+  std::ranges::generate(data2, [&gen, &dist]() { return dist(gen); });
+
+  Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
+  Pointer<type, alloc, dealloc> ptr2{data2.data(), NUM_ELEMENTS};
+  ptr2 = ptr1;
+  EXPECT_EQ(ptr2.get_ref_count(), 2);
+  EXPECT_EQ(ptr1.get_ref_count(), 2);
+  EXPECT_EQ(alloc_count, 2);
+  EXPECT_EQ(dealloc_count, 1);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE * 2);
+
+  for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+    EXPECT_EQ(ptr1[i], ptr2[i]);
+  }
+}
+
+TEST_F(PointerTest, MoveOperator) {
+  std::mt19937 gen{NUM_ELEMENTS};
+  std::normal_distribution<type> dist{};
+  std::vector<type> data(NUM_ELEMENTS);
+  std::vector<type> data2(NUM_ELEMENTS);
+  std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+  std::ranges::generate(data2, [&gen, &dist]() { return dist(gen); });
+
+  Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
+  Pointer<type, alloc, dealloc> ptr2{data2.data(), NUM_ELEMENTS};
+  ptr2 = std::move(ptr1);
+  EXPECT_EQ(ptr2.get_ref_count(), 1);
+  EXPECT_EQ(ptr1.get_ref_count(), 0);
+  EXPECT_EQ(alloc_count, 2);
+  EXPECT_EQ(dealloc_count, 1);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE * 2);
+
+  for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+    EXPECT_EQ(ptr2[i], data[i]);
+  }
+}
