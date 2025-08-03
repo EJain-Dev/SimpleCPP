@@ -37,7 +37,7 @@ TEST_F(PointerTest, LenConstructor) {
     const auto& ref_count = ptr.get_ref_count();
 
     EXPECT_EQ(ref_count, 1);
-    EXPECT_EQ(allocated_count, 0);
+    EXPECT_EQ(allocated_count, 1);
     EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
   }
 
