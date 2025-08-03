@@ -24,7 +24,7 @@ void* alloc(const size_t& size) {
 }
 
 void dealloc(void* ptr) noexcept {
-  dealloc_count--;
+  dealloc_count++;
   free(ptr);
 }
 
@@ -87,11 +87,16 @@ TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
   constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
   Pointer<type, alloc, dealloc> ptr;
-  EXPECT_THROW((ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS}), std::invalid_argument);
-  EXPECT_EQ(ptr.get_ref_count(), 1);
-  EXPECT_EQ(alloc_count, 1);
-  EXPECT_EQ(dealloc_count, 1);
-  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  try {
+    ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS};
+    FAIL()
+        << "Expected std::invalid_argument when existing data constructor is called with nullptr";
+  } catch (std::invalid_argument& e) {
+    EXPECT_EQ(ptr.get_ref_count(), 0);
+    EXPECT_EQ(alloc_count, 1);
+    EXPECT_EQ(dealloc_count, 1);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+  }
 }
 
 TEST_F(PointerTest, CopyConstructor) {
