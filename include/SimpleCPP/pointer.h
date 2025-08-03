@@ -9,10 +9,10 @@
 namespace simplecpp {
 void* default_allocator(const size_t& size) { return malloc(size); }
 
-void default_deallocator(void* ptr) { free(static_cast<void*>(ptr)); }
+void default_deallocator(void* ptr) noexcept { free(static_cast<void*>(ptr)); }
 
 template <typename T, void* (*alloc)(const size_t&) = default_allocator,
-          void (*dealloc)(void*) = default_deallocator>
+          void (*dealloc)(void*) noexcept = default_deallocator>
 class Pointer {
  public:
   Pointer() noexcept
@@ -38,15 +38,15 @@ class Pointer {
     memcpy(_data, data, len * sizeof(T));
   }
 
-  Pointer(const Pointer& other) : _refs(other._refs), _data(other._data) { ++(*_refs); }
+  Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) { ++(*_refs); }
 
   Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
     other._refs->store(0);
   }
 
-  ~Pointer() { dec_ref(); }
+  ~Pointer() noexcept { dec_ref(); }
 
-  Pointer& operator=(const Pointer& other) {
+  Pointer& operator=(const Pointer& other) noexcept {
     if (this == &other) {
       return *this;
     }
@@ -79,10 +79,10 @@ class Pointer {
   const T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
   const T& operator*() const noexcept { return *_data; }
 
-  friend bool operator==(const Pointer& a, const Pointer& b) { return a._data == b._data; }
+  friend bool operator==(const Pointer& a, const Pointer& b) noexcept { return a._data == b._data; }
 
  private:
-  void dec_ref() {
+  void dec_ref() noexcept {
     if (_refs->load() != 0) {
       if (--(*_refs) == 0) {
         free(_refs);
