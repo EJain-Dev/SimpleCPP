@@ -21,7 +21,7 @@ class Pointer {
     _refs->store(0);
   }
 
-  Pointer(const size_t& len)
+  explicit Pointer(const size_t& len)
       : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     _refs->store(1);
@@ -37,9 +37,11 @@ class Pointer {
     memcpy(_data, data, len * sizeof(T));
   }
 
-  Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) { ++(*_refs); }
+  explicit Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) {
+    ++(*_refs);
+  }
 
-  Pointer(Pointer&& other) noexcept
+  explicit Pointer(Pointer&& other) noexcept
       : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
         _data(other._data) {
     _refs->store(other._refs->load());
