@@ -70,6 +70,7 @@ class Pointer {
     }
 
     dec_ref();
+    _refs = static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)));
     _refs->store(other._refs->load());
     _data = other._data;
     other._refs->store(0);
