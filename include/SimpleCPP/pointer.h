@@ -32,7 +32,6 @@ class Pointer {
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     _refs->store(1);
     if (data == nullptr) {
-      _refs->store(0);
       throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
     }
     memcpy(_data, data, len * sizeof(T));
