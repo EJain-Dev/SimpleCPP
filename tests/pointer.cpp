@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <random>
+#include <utility>
 #include <vector>
 
 size_t allocated_count;
@@ -77,4 +78,58 @@ TEST_F(PointerTest, ExistingDataConstructor) {
   }
 
   EXPECT_EQ(allocated_count, 0);
+}
+
+TEST_F(PointerTest, CopyConstructor) {
+  using type = float;
+  constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
+
+  std::mt19937 gen{NUM_ELEMENTS};
+  std::normal_distribution<type> dist{};
+  std::vector<type> data(NUM_ELEMENTS);
+  std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+
+  Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
+  {
+    auto ptr2{ptr1};
+    EXPECT_EQ(ptr2.get_ref_count(), 2);
+    EXPECT_EQ(ptr1.get_ref_count(), 2);
+    EXPECT_EQ(allocated_count, 1);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+
+    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+      EXPECT_EQ(ptr1[i], ptr2[i]);
+    }
+  }
+  EXPECT_EQ(ptr1.get_ref_count(), 1);
+  EXPECT_EQ(allocated_count, 1);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+}
+
+TEST_F(PointerTest, MoveConstructor) {
+  using type = float;
+  constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
+
+  std::mt19937 gen{NUM_ELEMENTS};
+  std::normal_distribution<type> dist{};
+  std::vector<type> data(NUM_ELEMENTS);
+  std::ranges::generate(data, [&gen, &dist]() { return dist(gen); });
+
+  Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
+  {
+    auto ptr2{std::move(ptr1)};
+    EXPECT_EQ(ptr2.get_ref_count(), 1);
+    EXPECT_EQ(ptr1.get_ref_count(), 0);
+    EXPECT_EQ(allocated_count, 1);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
+
+    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+      EXPECT_EQ(ptr2[i], data[i]);
+    }
+  }
+  EXPECT_EQ(ptr1.get_ref_count(), 0);
+  EXPECT_EQ(allocated_count, 0);
+  EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 }
