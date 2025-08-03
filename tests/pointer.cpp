@@ -39,13 +39,14 @@ TEST_F(PointerTest, DefaultConstructor) {
 TEST_F(PointerTest, LenConstructor) {
   using type = simplecpp::Pointer<float>;
   constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
   {
     simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
 
     EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
   }
 
   EXPECT_EQ(allocated_count, 0);
@@ -54,6 +55,7 @@ TEST_F(PointerTest, LenConstructor) {
 TEST_F(PointerTest, ExistingDataConstructor) {
   using type = float;
   constexpr auto NUM_ELEMENTS = 32;
+  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 
   {
     std::mt19937 gen{NUM_ELEMENTS};
@@ -65,7 +67,7 @@ TEST_F(PointerTest, ExistingDataConstructor) {
 
     EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(allocated_count, 1);
-    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
+    EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
 
     for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
       EXPECT_EQ(ptr[i], data[i]);
