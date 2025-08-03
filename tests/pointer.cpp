@@ -28,6 +28,14 @@ class PointerTest : public testing::Test {
   }
 };
 
+TEST_F(PointerTest, DefaultConstructor) {
+  using type = float;
+
+  simplecpp::Pointer<type, alloc, dealloc> ptr{};
+  EXPECT_EQ(ptr.get_ref_count(), 0);
+  EXPECT_EQ(allocated_count, 0);
+}
+
 TEST_F(PointerTest, LenConstructor) {
   using type = simplecpp::Pointer<float>;
   constexpr auto NUM_ELEMENTS = 32;
