@@ -38,8 +38,6 @@ class PointerTest : public testing::Test {
 };
 
 TEST_F(PointerTest, DefaultConstructor) {
-  using type = float;
-
   Pointer<type, alloc, dealloc> ptr{};
   EXPECT_EQ(ptr.get_ref_count(), 0);
   EXPECT_EQ(alloc_count, 0);
@@ -47,10 +45,6 @@ TEST_F(PointerTest, DefaultConstructor) {
 }
 
 TEST_F(PointerTest, LenConstructor) {
-  using type = Pointer<float>;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
 
   EXPECT_EQ(ptr.get_ref_count(), 1);
@@ -60,10 +54,6 @@ TEST_F(PointerTest, LenConstructor) {
 }
 
 TEST_F(PointerTest, ExistingDataConstructor) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   std::mt19937 gen{NUM_ELEMENTS};
   std::normal_distribution<type> dist{};
   std::vector<type> data(NUM_ELEMENTS);
@@ -82,10 +72,6 @@ TEST_F(PointerTest, ExistingDataConstructor) {
 }
 
 TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   Pointer<type, alloc, dealloc> ptr;
   try {
     ptr = Pointer<type, alloc, dealloc>{nullptr, NUM_ELEMENTS};
@@ -100,10 +86,6 @@ TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
 }
 
 TEST_F(PointerTest, CopyConstructor) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   std::mt19937 gen{NUM_ELEMENTS};
   std::normal_distribution<type> dist{};
   std::vector<type> data(NUM_ELEMENTS);
@@ -123,10 +105,6 @@ TEST_F(PointerTest, CopyConstructor) {
 }
 
 TEST_F(PointerTest, MoveConstructor) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   std::mt19937 gen{NUM_ELEMENTS};
   std::normal_distribution<type> dist{};
   std::vector<type> data(NUM_ELEMENTS);
@@ -146,10 +124,6 @@ TEST_F(PointerTest, MoveConstructor) {
 }
 
 TEST_F(PointerTest, Destructor) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-  constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
-
   {
     Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
     {
