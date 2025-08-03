@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 namespace simplecpp {
-void* default_allocator(const size_t& size) { return malloc(size); }
+void* default_allocator(const size_t& size) noexcept { return malloc(size); }
 
 void default_deallocator(void* ptr) noexcept { free(static_cast<void*>(ptr)); }
 
