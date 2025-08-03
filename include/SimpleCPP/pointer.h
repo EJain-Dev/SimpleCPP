@@ -15,7 +15,11 @@ template <typename T, void* (*alloc)(const size_t&) = default_allocator,
           void (*dealloc)(void*) = default_deallocator>
 class Pointer {
  public:
-  Pointer() = default;
+  Pointer()
+      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
+        _data(nullptr) {
+    _refs->store(0);
+  }
 
   Pointer(const size_t& len)
       : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
@@ -36,8 +40,7 @@ class Pointer {
   Pointer(const Pointer& other) : _refs(other._refs), _data(other._data) { ++(*_refs); }
 
   Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
-    other._refs = nullptr;
-    other._data = nullptr;
+    other._refs->store(0);
   }
 
   ~Pointer() { dec_ref(); }
@@ -77,7 +80,7 @@ class Pointer {
 
  private:
   void dec_ref() {
-    if (_refs != nullptr) {
+    if (_refs->load() != 0) {
       if (--(*_refs) == 0) {
         free(_refs);
         dealloc(_data);
@@ -85,8 +88,8 @@ class Pointer {
     }
   }
 
-  std::atomic<size_t>* _refs = nullptr;
-  T* _data = nullptr;
+  std::atomic<size_t>* _refs;
+  T* _data;
 };
 }  // namespace simplecpp
 
