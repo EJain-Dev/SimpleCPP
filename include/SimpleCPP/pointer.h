@@ -70,10 +70,9 @@ class Pointer {
     }
 
     dec_ref();
-    _refs = other._refs;
+    _refs->store(other._refs->load());
     _data = other._data;
-    other._refs = nullptr;
-    other._data = nullptr;
+    other._refs->store(0);
 
     return *this;
   }
