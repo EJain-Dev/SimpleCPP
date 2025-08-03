@@ -40,7 +40,10 @@ class Pointer {
 
   Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) { ++(*_refs); }
 
-  Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
+  Pointer(Pointer&& other) noexcept
+      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
+        _data(other._data) {
+    _refs->store(other._refs->load());
     other._refs->store(0);
   }
 
