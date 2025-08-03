@@ -15,7 +15,7 @@ template <typename T, void* (*alloc)(const size_t&) = default_allocator,
           void (*dealloc)(void*) = default_deallocator>
 class Pointer {
  public:
-  Pointer()
+  Pointer() noexcept
       : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
         _data(nullptr) {
     _refs->store(0);
@@ -76,8 +76,8 @@ class Pointer {
   const T* get() const noexcept { return _data; }
   const size_t get_ref_count() const noexcept { return _refs->load(); }
 
-  const T& operator[](const size_t& idx) { return _data[idx]; }
-  const T& operator*() { return *_data; }
+  const T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
+  const T& operator*() const noexcept { return *_data; }
 
   friend bool operator==(const Pointer& a, const Pointer& b) { return a._data == b._data; }
 
