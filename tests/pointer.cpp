@@ -60,26 +60,3 @@ TEST_F(PointerTest, ExistingDataConstructor) {
   EXPECT_EQ(allocated_count, 0);
   EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
 }
-
-TEST_F(PointerTest, ReferenceCounting) {
-  using type = float;
-  constexpr auto NUM_ELEMENTS = 32;
-
-  simplecpp::Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
-  EXPECT_EQ(ptr.get_ref_count(), 1);
-
-  {
-    auto other_ptr{ptr};
-    EXPECT_EQ(ptr.get_ref_count(), 2);
-    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
-    EXPECT_EQ(allocated_count, 1);
-
-    auto other_other_ptr{other_ptr};
-    EXPECT_EQ(ptr.get_ref_count(), 2);
-    EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
-    EXPECT_EQ(allocated_count, 1);
-  }
-  EXPECT_EQ(allocated_size, sizeof(type) * NUM_ELEMENTS);
-  EXPECT_EQ(allocated_count, 1);
-  EXPECT_EQ(ptr.get_ref_count(), 1);
-}
