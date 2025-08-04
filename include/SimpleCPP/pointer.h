@@ -228,9 +228,11 @@ class Pointer {
 
  private:
   void dec_ref() noexcept {
-    if (_refs != nullptr && *_refs > 0 && --(*_refs) == 0) {
-      dealloc(_data);
-      free(_refs);
+    if (_refs != nullptr && *_refs > 0) {
+      if (--(*_refs) == 0) {
+        dealloc(_data);
+        free(_refs);
+      }
       _refs = nullptr;
       _data = nullptr;
     }
