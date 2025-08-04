@@ -182,10 +182,34 @@ class Pointer {
    */
   friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
+  /**
+   * @brief Checks if the raw pointer at a points to a address less than b
+   *
+   * @param a The first Pointer object to compare
+   * @param b The second Pointer object to compare
+   */
   friend bool operator<(const Pointer& a, const Pointer& b) noexcept { return a._data < b._data; }
+  /**
+   * @brief Checks if the raw pointer at a points to a address less than b
+   *
+   * @param a The Pointer object to compare
+   * @param b A raw pointer
+   */
   friend bool operator<(const Pointer& a, const T* b) noexcept { return a._data < b; }
 
+  /**
+   * @brief Checks if the raw pointer at a points to a address greater than b
+   *
+   * @param a The first Pointer object to compare
+   * @param b The second Pointer object to compare
+   */
   friend bool operator>(const Pointer& a, const Pointer& b) noexcept { return a._data > b._data; }
+  /**
+   * @brief Checks if the raw pointer at a points to a address greater than b
+   *
+   * @param a The Pointer object to compare
+   * @param b A raw pointer
+   */
   friend bool operator>(const Pointer& a, const T* b) noexcept { return a._data > b; }
 
  private:
