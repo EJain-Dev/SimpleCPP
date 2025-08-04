@@ -1,7 +1,6 @@
 #ifndef SIMPLECPP_POINTER_H_
 #define SIMPLECPP_POINTER_H_
 
-#include <atomic>
 #include <cstdlib>
 #include <stdexcept>
 
@@ -14,22 +13,18 @@ template <typename T, void* (*alloc)(const size_t&) = default_allocator,
           void (*dealloc)(void*) noexcept = default_deallocator>
 class Pointer {
  public:
-  Pointer() noexcept
-      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
-        _data(nullptr) {
-    _refs->store(0);
-  }
+  Pointer() noexcept : _refs(nullptr), _data(nullptr) {}
 
   explicit Pointer(const size_t& len)
-      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
+      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    _refs->store(1);
+    *_refs = 1;
   }
 
   Pointer(const T* data, const size_t& len)
-      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
+      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    _refs->store(1);
+    *_refs = 1;
     if (data == nullptr) {
       dec_ref();
       throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
@@ -41,11 +36,8 @@ class Pointer {
     ++(*_refs);
   }
 
-  explicit Pointer(Pointer&& other) noexcept
-      : _refs(static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)))),
-        _data(other._data) {
-    _refs->store(other._refs->load());
-    other._refs->store(0);
+  explicit Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
+    other._refs = nullptr;
   }
 
   ~Pointer() noexcept { dec_ref(); }
@@ -69,22 +61,21 @@ class Pointer {
     }
 
     dec_ref();
-    _refs = static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)));
-    _refs->store(other._refs->load());
+    _refs = other._refs;
     _data = other._data;
-    other._refs->store(0);
+    other._refs = nullptr;
 
     return *this;
   }
 
   T* get() noexcept { return _data; }
   const T* get() const noexcept { return _data; }
-  const size_t get_ref_count() const noexcept { return _refs->load(); }
-  const bool& is_valid() const noexcept { return _refs->load() == 0; }
+  const size_t*& get_ref_count() const noexcept { return _refs; }
+  const bool& is_valid() const noexcept { return _refs != nullptr; }
   void make_null() noexcept {
     dec_ref();
-    _refs = static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)));
-    _refs->store(0);
+    free(_refs);
+    _refs = nullptr;
     _data = nullptr;
   }
 
@@ -92,7 +83,7 @@ class Pointer {
   const T& operator*() const noexcept { return *_data; }
 
   friend bool operator==(const Pointer& a, const Pointer& b) noexcept {
-    return a._refs->load() == b._refs->load() && a._data == b._data;
+    return a._refs == b._refs && a._data == b._data;
   }
   friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
@@ -104,15 +95,15 @@ class Pointer {
 
  private:
   void dec_ref() noexcept {
-    if (_refs->load() != 0) {
-      if (--(*_refs) == 0) {
-        free(_refs);
-        dealloc(_data);
-      }
+    if (_refs != nullptr && *_refs > 0 && --(*_refs) == 0) {
+      dealloc(_data);
+      free(_refs);
+      _refs = nullptr;
     }
   }
 
-  std::atomic<size_t>* _refs;
+  size_t offset;
+  size_t* _refs;
   T* _data;
 };
 }  // namespace simplecpp

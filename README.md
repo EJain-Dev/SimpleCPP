@@ -11,7 +11,6 @@ SimpleCPP is a C++ library to simplify C++, it aims to ensure safety whilst keep
 
 # Features
 1. `simplecpp::Pointer` - An alternative to `std::shared_ptr`. 
-	1. Thread safe
 	1. Supports a custom deleter and allocator as a template parameter
 	1. Supports comparisons with manual pointers
 	1. Copy constructor from existing pointer array of any length
