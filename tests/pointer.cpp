@@ -39,7 +39,7 @@ class PointerTest : public testing::Test {
 
 TEST_F(PointerTest, DefaultConstructor) {
   Pointer<type, alloc, dealloc> ptr{};
-  EXPECT_EQ(ptr.get_ref_count(), 0);
+  EXPECT_EQ(ptr.is_valid(), false);
   EXPECT_EQ(alloc_count, 0);
   EXPECT_EQ(dealloc_count, 0);
 }
@@ -47,6 +47,7 @@ TEST_F(PointerTest, DefaultConstructor) {
 TEST_F(PointerTest, LenConstructor) {
   Pointer<type, alloc, dealloc> ptr{NUM_ELEMENTS};
 
+  EXPECT_EQ(ptr.is_valid(), true);
   EXPECT_EQ(ptr.get_ref_count(), 1);
   EXPECT_EQ(alloc_count, 1);
   EXPECT_EQ(dealloc_count, 0);
@@ -61,6 +62,7 @@ TEST_F(PointerTest, ExistingDataConstructor) {
 
   Pointer<type, alloc, dealloc> ptr{data.data(), NUM_ELEMENTS};
 
+  EXPECT_EQ(ptr.is_valid(), true);
   EXPECT_EQ(ptr.get_ref_count(), 1);
   EXPECT_EQ(alloc_count, 1);
   EXPECT_EQ(dealloc_count, 0);
@@ -78,7 +80,7 @@ TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
     FAIL()
         << "Expected std::invalid_argument when existing data constructor is called with nullptr";
   } catch (std::invalid_argument& e) {
-    EXPECT_EQ(ptr.get_ref_count(), 0);
+    EXPECT_EQ(ptr.is_valid(), 1);
     EXPECT_EQ(alloc_count, 1);
     EXPECT_EQ(dealloc_count, 1);
     EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
@@ -93,6 +95,8 @@ TEST_F(PointerTest, CopyConstructor) {
 
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
   auto ptr2{ptr1};
+  EXPECT_EQ(ptr1.is_valid(), true);
+  EXPECT_EQ(ptr2.is_valid(), true);
   EXPECT_EQ(ptr2.get_ref_count(), 2);
   EXPECT_EQ(ptr1.get_ref_count(), 2);
   EXPECT_EQ(alloc_count, 1);
@@ -112,8 +116,9 @@ TEST_F(PointerTest, MoveConstructor) {
 
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
   auto ptr2{std::move(ptr1)};
+  EXPECT_EQ(ptr2.is_valid(), true);
   EXPECT_EQ(ptr2.get_ref_count(), 1);
-  EXPECT_EQ(ptr1.get_ref_count(), 0);
+  EXPECT_EQ(ptr1.is_valid(), false);
   EXPECT_EQ(alloc_count, 1);
   EXPECT_EQ(dealloc_count, 0);
   EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
@@ -129,6 +134,7 @@ TEST_F(PointerTest, Destructor) {
     {
       auto ptr2{ptr};
     }
+    EXPECT_EQ(ptr.is_valid(), true);
     EXPECT_EQ(ptr.get_ref_count(), 1);
     EXPECT_EQ(dealloc_count, 0);
   }
@@ -149,6 +155,8 @@ TEST_F(PointerTest, CopyOperator) {
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
   Pointer<type, alloc, dealloc> ptr2{data2.data(), NUM_ELEMENTS};
   ptr2 = ptr1;
+  EXPECT_EQ(ptr1.is_valid(), true);
+  EXPECT_EQ(ptr2.is_valid(), true);
   EXPECT_EQ(ptr2.get_ref_count(), 2);
   EXPECT_EQ(ptr1.get_ref_count(), 2);
   EXPECT_EQ(alloc_count, 2);
@@ -171,8 +179,9 @@ TEST_F(PointerTest, MoveOperator) {
   Pointer<type, alloc, dealloc> ptr1{data.data(), NUM_ELEMENTS};
   Pointer<type, alloc, dealloc> ptr2{data2.data(), NUM_ELEMENTS};
   ptr2 = std::move(ptr1);
+  EXPECT_EQ(ptr1.is_valid(), false);
+  EXPECT_EQ(ptr2.is_valid(), true);
   EXPECT_EQ(ptr2.get_ref_count(), 1);
-  EXPECT_EQ(ptr1.get_ref_count(), 0);
   EXPECT_EQ(alloc_count, 2);
   EXPECT_EQ(dealloc_count, 1);
   EXPECT_EQ(allocated_size, ALLOCATION_SIZE * 2);
