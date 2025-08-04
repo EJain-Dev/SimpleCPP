@@ -80,7 +80,7 @@ TEST_F(PointerTest, ExistingDataConstructorInvalidArg) {
     FAIL()
         << "Expected std::invalid_argument when existing data constructor is called with nullptr";
   } catch (std::invalid_argument& e) {
-    EXPECT_EQ(ptr.is_valid(), 1);
+    EXPECT_EQ(ptr.is_valid(), false);
     EXPECT_EQ(alloc_count, 1);
     EXPECT_EQ(dealloc_count, 1);
     EXPECT_EQ(allocated_size, ALLOCATION_SIZE);
