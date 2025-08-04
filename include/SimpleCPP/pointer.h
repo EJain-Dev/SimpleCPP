@@ -70,7 +70,7 @@ class Pointer {
 
   T* get() noexcept { return _data; }
   const T* get() const noexcept { return _data; }
-  const size_t*& get_ref_count() const noexcept { return _refs; }
+  const size_t get_ref_count() const noexcept { return (is_valid()) ? (*_refs) : 0; }
   const bool& is_valid() const noexcept { return _refs != nullptr; }
   void make_null() noexcept {
     dec_ref();
@@ -102,7 +102,6 @@ class Pointer {
     }
   }
 
-  size_t offset;
   size_t* _refs;
   T* _data;
 };
