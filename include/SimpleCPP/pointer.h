@@ -26,6 +26,9 @@ class Pointer {
   explicit Pointer(const size_t& len)
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
+    if (_refs == nullptr) {
+      throw std::bad_alloc();
+    }
     *_refs = 1;
   }
 
@@ -42,6 +45,9 @@ class Pointer {
   Pointer(const T* data, const size_t& len)
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
+    if (_refs == nullptr) {
+      throw std::bad_alloc();
+    }
     *_refs = 1;
     if (data == nullptr) {
       dec_ref();
