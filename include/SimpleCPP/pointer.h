@@ -27,6 +27,10 @@ class Pointer {
    * @brief Constructs a Pointer object with a specified length.
    *
    * @param len The length of the data to allocate.
+   *
+   * @exception std::bad_alloc if malloc returns null
+   * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
+   * exception should the allocator not throw one.
    */
   explicit Pointer(const size_t& len)
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
@@ -44,6 +48,9 @@ class Pointer {
    * @param len Length of the data array
    *
    * @exception std::invalid_argument if the provided data pointer is null.
+   * @exception std::bad_alloc if malloc returns null
+   * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
+   * exception should the allocator not throw one.
    *
    * @note This creates a COPY of the data for safety.
    */
