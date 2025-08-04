@@ -69,7 +69,9 @@ class Pointer {
    * @note This is a shallow copy just like with raw pointers.
    */
   explicit Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) {
-    ++(*_refs);
+    if (_refs != nullptr) {
+      ++(*_refs);
+    }
   }
 
   /**
@@ -102,8 +104,10 @@ class Pointer {
 
     dec_ref();
     _refs = other._refs;
-    ++(*_refs);
-    _data = other._data;
+    if (_refs != nullptr) {
+      ++(*_refs);
+      _data = other._data;
+    }
 
     return *this;
   }
@@ -155,7 +159,7 @@ class Pointer {
    * @note The Pointer object may point to allocated memory but if it has decremented the reference
    * count and thus no longer shares the data it is not valid.
    */
-  const bool is_valid() const noexcept { return _refs != nullptr; }
+  const bool is_valid() const noexcept { return _data != nullptr; }
   /**
    * @brief Deletes the data and decrements the reference count for the object. It sets the data to
    * nullptr.
@@ -229,6 +233,7 @@ class Pointer {
       dealloc(_data);
       free(_refs);
       _refs = nullptr;
+      _data = nullptr;
     }
   }
 
