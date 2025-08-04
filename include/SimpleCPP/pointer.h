@@ -2,7 +2,6 @@
 #define SIMPLECPP_POINTER_H_
 
 #include <atomic>
-#include <concepts>
 #include <cstdlib>
 #include <stdexcept>
 
