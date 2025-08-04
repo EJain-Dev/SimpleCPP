@@ -90,6 +90,7 @@ class Pointer {
    */
   explicit Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
     other._refs = nullptr;
+    other._data = nullptr;
   }
 
   /**
@@ -135,6 +136,7 @@ class Pointer {
     _refs = other._refs;
     _data = other._data;
     other._refs = nullptr;
+    other._data = nullptr;
 
     return *this;
   }
