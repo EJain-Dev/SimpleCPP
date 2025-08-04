@@ -90,6 +90,12 @@ class Pointer {
   }
   friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
+  friend bool operator<(const Pointer& a, const Pointer& b) noexcept { return a._data < b._data; }
+  friend bool operator<(const Pointer& a, const T* b) noexcept { return a._data < b; }
+
+  friend bool operator>(const Pointer& a, const Pointer& b) noexcept { return a._data > b._data; }
+  friend bool operator>(const Pointer& a, const T* b) noexcept { return a._data > b; }
+
  private:
   void dec_ref() noexcept {
     if (_refs->load() != 0) {
