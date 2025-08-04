@@ -81,6 +81,13 @@ class Pointer {
   T* get() noexcept { return _data; }
   const T* get() const noexcept { return _data; }
   const size_t get_ref_count() const noexcept { return _refs->load(); }
+  const bool& is_valid() const noexcept { return _refs->load() == 0; }
+  void make_null() noexcept {
+    dec_ref();
+    _refs = static_cast<std::atomic<size_t>*>(malloc(sizeof(std::atomic<size_t>)));
+    _refs->store(0);
+    _data = nullptr;
+  }
 
   const T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
   const T& operator*() const noexcept { return *_data; }
