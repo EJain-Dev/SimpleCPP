@@ -13,14 +13,32 @@ template <typename T, void* (*alloc)(const size_t&) = default_allocator,
           void (*dealloc)(void*) noexcept = default_deallocator>
 class Pointer {
  public:
+  /**
+   * @brief Default constructor to create an invalid Pointer object.
+   */
   Pointer() noexcept : _refs(nullptr), _data(nullptr) {}
 
+  /**
+   * @brief Constructs a Pointer object with a specified length.
+   *
+   * @param len The length of the data to allocate.
+   */
   explicit Pointer(const size_t& len)
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
     *_refs = 1;
   }
 
+  /**
+   * @brief Constructs a Pointer object from an existing data array stored as a raw pointer.
+   *
+   * @param data Pointer to the start of the data array
+   * @param len Length of the data array
+   *
+   * @exception std::invalid_argument if the provided data pointer is null.
+   *
+   * @note This creates a COPY of the data for safety.
+   */
   Pointer(const T* data, const size_t& len)
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(len * sizeof(T)))) {
@@ -32,16 +50,40 @@ class Pointer {
     memcpy(_data, data, len * sizeof(T));
   }
 
+  /**
+   * @brief Copy constructor to create a Pointer object from another Pointer object.
+   *
+   * @param other The Pointer object to copy
+   *
+   * @note This is a shallow copy just like with raw pointers.
+   */
   explicit Pointer(const Pointer& other) noexcept : _refs(other._refs), _data(other._data) {
     ++(*_refs);
   }
 
+  /**
+   * @brief Move constructor to create a Pointer object from another Pointer object.
+   *
+   * @param other The Pointer object to move into this Pointer object
+   *
+   * @note This leaves the other Pointer object in a invalid state
+   */
   explicit Pointer(Pointer&& other) noexcept : _refs(other._refs), _data(other._data) {
     other._refs = nullptr;
   }
 
+  /**
+   * @brief Destroys the Pointer object
+   */
   ~Pointer() noexcept { dec_ref(); }
 
+  /**
+   * @brief Copy operator to assign one Pointer object to another
+   *
+   * @param other The Pointer object to copy from
+   *
+   * @note This is a shallow copy just like with raw pointers.
+   */
   Pointer& operator=(const Pointer& other) noexcept {
     if (this == &other) {
       return *this;
@@ -55,6 +97,13 @@ class Pointer {
     return *this;
   }
 
+  /**
+   * @brief Move operator to assign one Pointer object to another
+   *
+   * @param other The Pointer object to move from
+   *
+   * @note This leaves the other Pointer object in an invalid state
+   */
   Pointer& operator=(Pointer&& other) noexcept {
     if (this == &other) {
       return *this;
@@ -68,10 +117,38 @@ class Pointer {
     return *this;
   }
 
+  /**
+   * @brief Returns the underlying pointer object.
+   *
+   * @warning This is only for compatibility with C APIs and should not be used otherwise. Freeing
+   * the pointer returned will result in undefined behavior for the lifetime of this object and upon
+   * destruction.
+   */
   T* get() noexcept { return _data; }
+
+  /**
+   * @brief Returns the underlying pointer object in a immutable state.
+   *
+   * @note This is only for compatibility with C APIs and should not be used otherwise.
+   */
   const T* get() const noexcept { return _data; }
+  /**
+   * @brief Returns the reference count of the Pointer object.
+   *
+   * @note If this is an invalid Pointer object, it returns 0.
+   */
   const size_t get_ref_count() const noexcept { return (is_valid()) ? (*_refs) : 0; }
+  /**
+   * @brief Checks if the Pointer object is valid (i.e., it points to allocated memory).
+   *
+   * @note The Pointer object may point to allocated memory but if it has decremented the reference
+   * count and thus no longer shares the data it is not valid.
+   */
   const bool is_valid() const noexcept { return _refs != nullptr; }
+  /**
+   * @brief Deletes the data and decrements the reference count for the object. It sets the data to
+   * nullptr.
+   */
   void make_null() noexcept {
     dec_ref();
     free(_refs);
@@ -79,12 +156,30 @@ class Pointer {
     _data = nullptr;
   }
 
+  /**
+   * @brief Indexing operator to access the data of the raw pointer at a specific index.
+   */
   const T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
+  /**
+   * @brief Dereference operator to access the data at the pointer's location.
+   */
   const T& operator*() const noexcept { return *_data; }
 
+  /**
+   * @brief Equality operator that returns true if b is a copy of a or the reverse.
+   *
+   * @param a The first Pointer object to compare
+   * @param b The second Pointer object to compare
+   */
   friend bool operator==(const Pointer& a, const Pointer& b) noexcept {
     return a._refs == b._refs && a._data == b._data;
   }
+  /**
+   * @brief Equality operator that returns true if b is the underlying pointer maintained by a.
+   *
+   * @param a The Pointer object to compare
+   * @param b A raw pointer
+   */
   friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
   friend bool operator<(const Pointer& a, const Pointer& b) noexcept { return a._data < b._data; }
