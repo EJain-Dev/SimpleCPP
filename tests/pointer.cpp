@@ -3,6 +3,7 @@
 #include <SimpleCPP/Pointer.h>
 
 #include <algorithm>
+#include <exception>
 #include <random>
 #include <stdexcept>
 #include <utility>
@@ -20,7 +21,11 @@ constexpr auto ALLOCATION_SIZE = sizeof(type) * NUM_ELEMENTS;
 void* alloc(const size_t& size) {
   alloc_count++;
   allocated_size += size;
-  return malloc(size);
+  auto data = malloc(size);
+  if (data == nullptr) {
+    throw std::bad_alloc();
+  }
+  return data;
 }
 
 void dealloc(void* ptr) noexcept {
