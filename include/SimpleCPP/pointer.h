@@ -14,6 +14,9 @@ void* default_allocator(const size_t& size) {
 
 void default_deallocator(void* ptr) noexcept { free(static_cast<void*>(ptr)); }
 
+using Allocator = void* (*)(const size_t&);
+using Deallocator = void (*)(void*) noexcept;
+
 /**
     @brief A smart pointer class that dynamically manages heap memory
 
@@ -23,8 +26,8 @@ void default_deallocator(void* ptr) noexcept { free(static_cast<void*>(ptr)); }
    exception if not std::bad_alloc.
     @param dealloc A custom deallocator function that frees the allocated memory
 */
-template <typename T, void* (*alloc)(const size_t&) = default_allocator,
-          void (*dealloc)(void*) noexcept = default_deallocator>
+template <typename T, Allocator alloc = default_allocator,
+          Deallocator dealloc = default_deallocator>
 class Pointer {
  public:
   /**
