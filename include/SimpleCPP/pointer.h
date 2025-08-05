@@ -200,13 +200,15 @@ class Pointer {
   const bool is_valid() const noexcept { return _data != nullptr; }
 
   /**
-   * @brief Indexing operator to access the data of the raw pointer at a specific index.
-   */
-  T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
-  /**
    * @brief Dereference operator to access the data at the pointer's location.
    */
-  T& operator*() const noexcept { return *_data; }
+  T& operator*() const noexcept {
+    if (is_valid()) {
+      return *_data;
+    } else {
+      throw std::runtime_error("Attempting to derference a null pointer.");
+    }
+  }
 
   /**
    * @brief Equality operator that returns true if b is a copy of a or the reverse.
