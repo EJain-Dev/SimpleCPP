@@ -33,7 +33,9 @@ class Pointer {
   /**
    * @brief Default constructor to create an invalid Pointer object.
    */
-  Pointer() noexcept : _refs(nullptr), _data(nullptr) {}
+  Pointer() noexcept
+      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
+        _data(static_cast<T*>(alloc(sizeof(T)))) {}
 
   /**
    * @brief Copy constructor to create a Pointer object from another Pointer object.
