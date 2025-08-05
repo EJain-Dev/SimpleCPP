@@ -41,6 +41,7 @@ class Pointer {
    * @param len The length of the data to allocate.
    *
    * @exception std::bad_alloc if malloc returns null
+   * @exception std::invalid_argument if the provided lenght is zero
    * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
    * exception should the allocator not throw one.
    */
@@ -53,6 +54,12 @@ class Pointer {
       throw std::bad_alloc();
     }
     *_refs = 1;
+    if (len == 0) {
+      dec_ref();
+      throw std::invalid_argument(
+          "A 'Pointer' object cannot be initialized with a length of zero, use default constructor "
+          "instead.");
+    }
   }
 
   /**
@@ -62,6 +69,7 @@ class Pointer {
    * @param len Length of the data array
    *
    * @exception std::invalid_argument if the provided data pointer is null.
+   * @exception std::invalid_argument if the provided length is zero
    * @exception std::bad_alloc if malloc returns null
    * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
    * exception should the allocator not throw one.
@@ -80,6 +88,11 @@ class Pointer {
     if (data == nullptr) {
       dec_ref();
       throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
+    } else if (len == 0) {
+      dec_ref();
+      throw std::invalid_argument(
+          "A 'Pointer' object cannot be initialized with a length of zero, use default constructor "
+          "instead.");
     }
     memcpy(_data, data, len * sizeof(T));
   }
