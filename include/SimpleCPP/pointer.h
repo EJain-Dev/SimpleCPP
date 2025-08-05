@@ -178,15 +178,6 @@ class Pointer {
    * count and thus no longer shares the data it is not valid.
    */
   const bool is_valid() const noexcept { return _data != nullptr; }
-  /**
-   * @brief Deletes the data and decrements the reference count for the object. It sets the data to
-   * nullptr.
-   */
-  [[deprecated]] void make_null() noexcept {
-    dec_ref();
-    _refs = nullptr;
-    _data = nullptr;
-  }
 
   /**
    * @brief Indexing operator to access the data of the raw pointer at a specific index.
