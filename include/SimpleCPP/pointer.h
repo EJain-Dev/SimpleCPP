@@ -42,7 +42,9 @@ class Pointer {
     *_refs = 1;
   }
 
-  explicit Pointer(const T& other) : _refs(static_cast<size_t *>(malloc(sizeof(size_t)))), _data(static_cast<T *>(alloc(sizeof(T))) {
+  explicit Pointer(const T& other)
+      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
+        _data(static_cast<T*>(alloc(sizeof(T)))) {
     if (_refs == nullptr) {
       throw std::bad_alloc();
     }
@@ -78,8 +80,7 @@ class Pointer {
   /**
    * @brief Destroys the Pointer object
    */
-  ~Pointer() noexcept {
-    dec_ref(); }
+  ~Pointer() noexcept { dec_ref(); }
 
   /**
    * @brief Copy operator to assign one Pointer object to another
@@ -131,31 +132,27 @@ class Pointer {
    * the pointer returned will result in undefined behavior for the lifetime of this object and upon
    * destruction.
    */
-  T* get() noexcept {
-    return _data; }
+  T* get() noexcept { return _data; }
 
   /**
    * @brief Returns the underlying pointer object in a immutable state.
    *
    * @note This is only for compatibility with C APIs and should not be used otherwise.
    */
-  const T* get() const noexcept {
-    return _data; }
+  const T* get() const noexcept { return _data; }
   /**
    * @brief Returns the reference count of the Pointer object.
    *
    * @note If this is an invalid Pointer object, it returns 0.
    */
-  const size_t& get_ref_count() const noexcept {
-    return (is_valid()) ? (*_refs) : 0; }
+  const size_t& get_ref_count() const noexcept { return (is_valid()) ? (*_refs) : 0; }
   /**
    * @brief Checks if the Pointer object is valid (i.e., it points to allocated memory).
    *
    * @note The Pointer object may point to allocated memory but if it has decremented the reference
    * count and thus no longer shares the data it is not valid.
    */
-  const bool is_valid() const noexcept {
-    return _data != nullptr; }
+  const bool is_valid() const noexcept { return _data != nullptr; }
 
   /**
    * @brief Dereference operator to access the data at the pointer's location.
@@ -183,8 +180,7 @@ class Pointer {
    * @param a The Pointer object to compare
    * @param b A raw pointer
    */
-  friend bool operator==(const Pointer& a, const T* b) noexcept {
-    return a._data == b; }
+  friend bool operator==(const Pointer& a, const T* b) noexcept { return a._data == b; }
 
   /**
    * @brief Checks if the raw pointer at a points to a address less than b
@@ -192,16 +188,14 @@ class Pointer {
    * @param a The first Pointer object to compare
    * @param b The second Pointer object to compare
    */
-  friend bool operator<(const Pointer& a, const Pointer& b) noexcept {
-    return a._data < b._data; }
+  friend bool operator<(const Pointer& a, const Pointer& b) noexcept { return a._data < b._data; }
   /**
    * @brief Checks if the raw pointer at a points to a address less than b
    *
    * @param a The Pointer object to compare
    * @param b A raw pointer
    */
-  friend bool operator<(const Pointer& a, const T* b) noexcept {
-    return a._data < b; }
+  friend bool operator<(const Pointer& a, const T* b) noexcept { return a._data < b; }
 
   /**
    * @brief Checks if the raw pointer at a points to a address greater than b
@@ -209,16 +203,14 @@ class Pointer {
    * @param a The first Pointer object to compare
    * @param b The second Pointer object to compare
    */
-  friend bool operator>(const Pointer& a, const Pointer& b) noexcept {
-    return a._data > b._data; }
+  friend bool operator>(const Pointer& a, const Pointer& b) noexcept { return a._data > b._data; }
   /**
    * @brief Checks if the raw pointer at a points to a address greater than b
    *
    * @param a The Pointer object to compare
    * @param b A raw pointer
    */
-  friend bool operator>(const Pointer& a, const T* b) noexcept {
-    return a._data > b; }
+  friend bool operator>(const Pointer& a, const T* b) noexcept { return a._data > b; }
 
  private:
   void dec_ref() noexcept {
