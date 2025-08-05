@@ -33,7 +33,7 @@ class Pointer {
   /**
    * @brief Default constructor to create an invalid Pointer object.
    */
-  Pointer() noexcept
+  Pointer()
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(sizeof(T)))) {
     if (_refs == nullptr) {
@@ -157,7 +157,7 @@ class Pointer {
   /**
    * @brief Dereference operator to access the data at the pointer's location.
    */
-  T& operator*() const noexcept {
+  T& operator*() const {
     if (is_valid()) {
       return *_data;
     } else {
