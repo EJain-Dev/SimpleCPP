@@ -36,68 +36,6 @@ class Pointer {
   Pointer() noexcept : _refs(nullptr), _data(nullptr) {}
 
   /**
-   * @brief Constructs a Pointer object with a specified length.
-   *
-   * @param len The length of the data to allocate.
-   *
-   * @exception std::bad_alloc if malloc returns null
-   * @exception std::invalid_argument if the provided lenght is zero
-   * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
-   * exception should the allocator not throw one.
-   */
-  explicit Pointer(const size_t& len)
-      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
-        _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    if (_refs == nullptr) {
-      dealloc(_data);
-      _data = nullptr;
-      throw std::bad_alloc();
-    }
-    *_refs = 1;
-    if (len == 0) {
-      dec_ref();
-      throw std::invalid_argument(
-          "A 'Pointer' object cannot be initialized with a length of zero, use default constructor "
-          "instead.");
-    }
-  }
-
-  /**
-   * @brief Constructs a Pointer object from an existing data array stored as a raw pointer.
-   *
-   * @param data Pointer to the start of the data array
-   * @param len Length of the data array
-   *
-   * @exception std::invalid_argument if the provided data pointer is null.
-   * @exception std::invalid_argument if the provided length is zero
-   * @exception std::bad_alloc if malloc returns null
-   * @exception User defined exception if call to alloc fails with custom allocator. It may throw no
-   * exception should the allocator not throw one.
-   *
-   * @note This creates a COPY of the data for safety.
-   */
-  Pointer(const T* data, const size_t& len)
-      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
-        _data(static_cast<T*>(alloc(len * sizeof(T)))) {
-    if (_refs == nullptr) {
-      dealloc(_data);
-      _data = nullptr;
-      throw std::bad_alloc();
-    }
-    *_refs = 1;
-    if (data == nullptr) {
-      dec_ref();
-      throw std::invalid_argument("A 'Pointer' object cannot be initialized with a null pointer.");
-    } else if (len == 0) {
-      dec_ref();
-      throw std::invalid_argument(
-          "A 'Pointer' object cannot be initialized with a length of zero, use default constructor "
-          "instead.");
-    }
-    memcpy(_data, data, len * sizeof(T));
-  }
-
-  /**
    * @brief Copy constructor to create a Pointer object from another Pointer object.
    *
    * @param other The Pointer object to copy
