@@ -135,7 +135,7 @@ class Pointer {
    * @note This is a shallow copy just like with raw pointers.
    */
   Pointer& operator=(const Pointer& other) noexcept {
-    if (this == &other) {
+    if (*this == other) {
       return *this;
     }
 
@@ -157,7 +157,7 @@ class Pointer {
    * @note This leaves the other Pointer object in an invalid state
    */
   Pointer& operator=(Pointer&& other) noexcept {
-    if (this == &other) {
+    if (*this == other) {
       return *this;
     }
 
