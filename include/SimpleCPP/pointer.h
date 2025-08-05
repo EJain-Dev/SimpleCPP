@@ -182,11 +182,11 @@ class Pointer {
   /**
    * @brief Indexing operator to access the data of the raw pointer at a specific index.
    */
-  const T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
+  T& operator[](const size_t& idx) const noexcept { return _data[idx]; }
   /**
    * @brief Dereference operator to access the data at the pointer's location.
    */
-  const T& operator*() const noexcept { return *_data; }
+  T& operator*() const noexcept { return *_data; }
 
   /**
    * @brief Equality operator that returns true if b is a copy of a or the reverse.
