@@ -35,7 +35,9 @@ class Pointer {
    */
   Pointer() noexcept
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
-        _data(static_cast<T*>(alloc(sizeof(T)))) {}
+        _data(static_cast<T*>(alloc(sizeof(T)))) {
+    *_refs = 1;
+  }
 
   /**
    * @brief Copy constructor to create a Pointer object from another Pointer object.
