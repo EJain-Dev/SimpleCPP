@@ -190,7 +190,7 @@ class Pointer {
    *
    * @note If this is an invalid Pointer object, it returns 0.
    */
-  const size_t get_ref_count() const noexcept { return (is_valid()) ? (*_refs) : 0; }
+  const size_t& get_ref_count() const noexcept { return (is_valid()) ? (*_refs) : 0; }
   /**
    * @brief Checks if the Pointer object is valid (i.e., it points to allocated memory).
    *
