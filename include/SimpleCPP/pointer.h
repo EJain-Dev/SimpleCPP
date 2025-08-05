@@ -36,10 +36,16 @@ class Pointer {
   Pointer() noexcept
       : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
         _data(static_cast<T*>(alloc(sizeof(T)))) {
+    if (_refs == nullptr) {
+      throw std::bad_alloc();
+    }
     *_refs = 1;
   }
 
   explicit Pointer(const T& other) : _refs(static_cast<size_t *>(malloc(sizeof(size_t)))), _data(static_cast<T *>(alloc(sizeof(T))) {
+    if (_refs == nullptr) {
+      throw std::bad_alloc();
+    }
     *_refs = 1;
     *_data = other;
   }
