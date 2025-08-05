@@ -161,7 +161,7 @@ class Pointer {
     if (is_valid()) {
       return *_data;
     } else {
-      throw std::runtime_error("Attempting to derference a null pointer.");
+      throw std::runtime_error("Attempting to dereference a null pointer.");
     }
   }
 
