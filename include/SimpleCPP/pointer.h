@@ -34,20 +34,14 @@ class Pointer {
    * @brief Default constructor to create an invalid Pointer object.
    */
   Pointer()
-      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
-        _data(static_cast<T*>(alloc(sizeof(T)))) {
-    if (_refs == nullptr) {
-      throw std::bad_alloc();
-    }
+      : _refs(static_cast<size_t*>(alloc(sizeof(size_t) + sizeof(T)))),
+        _data(reinterpret_cast<T*>(_refs + 1)) {
     *_refs = 1;
   }
 
   explicit Pointer(const T& other)
-      : _refs(static_cast<size_t*>(malloc(sizeof(size_t)))),
-        _data(static_cast<T*>(alloc(sizeof(T)))) {
-    if (_refs == nullptr) {
-      throw std::bad_alloc();
-    }
+      : _refs(static_cast<size_t*>(alloc(sizeof(size_t) + sizeof(T)))),
+        _data(reinterpret_cast<T*>(_refs + 1)) {
     *_refs = 1;
     *_data = other;
   }
@@ -216,7 +210,6 @@ class Pointer {
   void dec_ref() noexcept {
     if (is_valid()) {
       if (--(*_refs) == 0) {
-        dealloc(_data);
         free(_refs);
       }
       _refs = nullptr;
