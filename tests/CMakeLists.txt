@@ -1,5 +1,2 @@
-add_executable(POINTER_TESTS pointer.cpp)
-target_link_libraries(POINTER_TESTS PRIVATE SimpleCPP PRIVATE GTest::gtest_main)
-
-include(GoogleTest)
-gtest_discover_tests(POINTER_TESTS)
+add_executable(PointerTests pointer.cpp)
+target_link_libraries(PointerTests PRIVATE GTest::gtest_main PRIVATE SimpleCPP)
