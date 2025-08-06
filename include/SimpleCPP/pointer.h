@@ -165,9 +165,7 @@ class Pointer {
    * @param a The first Pointer object to compare
    * @param b The second Pointer object to compare
    */
-  friend bool operator==(const Pointer& a, const Pointer& b) noexcept {
-    return a._refs == b._refs && a._data == b._data;
-  }
+  friend bool operator==(const Pointer& a, const Pointer& b) noexcept { return a._data == b._data; }
   /**
    * @brief Equality operator that returns true if b is the underlying pointer maintained by a.
    *
